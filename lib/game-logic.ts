@@ -11,24 +11,24 @@ export interface DifficultyConfig {
 
 export const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
   easy: {
-    gridWidth: 7,
-    gridHeight: 5,
+    gridWidth: 5,
+    gridHeight: 7,
     fallSpeed: 1000,
     fastFallSpeed: 80,
     blockValues: [2, 4],
     blockWeights: [0.8, 1.0],
   },
   medium: {
-    gridWidth: 7,
-    gridHeight: 5,
+    gridWidth: 5,
+    gridHeight: 7,
     fallSpeed: 700,
     fastFallSpeed: 50,
     blockValues: [2, 4, 8],
     blockWeights: [0.6, 0.9, 1.0],
   },
   hard: {
-    gridWidth: 7,
-    gridHeight: 5,
+    gridWidth: 5,
+    gridHeight: 7,
     fallSpeed: 450,
     fastFallSpeed: 30,
     blockValues: [2, 4, 8, 16],
