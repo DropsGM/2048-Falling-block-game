@@ -12,7 +12,7 @@ export interface DifficultyConfig {
 export const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
   easy: {
     gridWidth: 5,
-    gridHeight: 8,
+    gridHeight: 7,
     fallSpeed: 1000,
     fastFallSpeed: 80,
     blockValues: [2, 4],
@@ -20,15 +20,15 @@ export const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
   },
   medium: {
     gridWidth: 5,
-    gridHeight: 10,
+    gridHeight: 7,
     fallSpeed: 700,
     fastFallSpeed: 50,
     blockValues: [2, 4, 8],
     blockWeights: [0.6, 0.9, 1.0],
   },
   hard: {
-    gridWidth: 6,
-    gridHeight: 12,
+    gridWidth: 5,
+    gridHeight: 7,
     fallSpeed: 450,
     fastFallSpeed: 30,
     blockValues: [2, 4, 8, 16],
@@ -37,9 +37,6 @@ export const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
 };
 
 export const CELL_SIZE = 56;
-
-const GRID_WIDTH = 6; // Declared GRID_WIDTH
-const GRID_HEIGHT = 12; // Declared GRID_HEIGHT
 
 export interface Block {
   id: string;
