@@ -32,7 +32,7 @@ const difficulties: DifficultyOption[] = [
     stats: {
       speed: "Slow",
       blocks: "2, 4",
-      grid: "5 x 8",
+      grid: "5 x 7",
     },
   },
   {
@@ -45,7 +45,7 @@ const difficulties: DifficultyOption[] = [
     stats: {
       speed: "Normal",
       blocks: "2, 4, 8",
-      grid: "5 x 10",
+      grid: "5 x 7",
     },
   },
   {
@@ -58,7 +58,7 @@ const difficulties: DifficultyOption[] = [
     stats: {
       speed: "Fast",
       blocks: "2, 4, 8, 16",
-      grid: "6 x 12",
+      grid: "5 x 7",
     },
   },
 ];
