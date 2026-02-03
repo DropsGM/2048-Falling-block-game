@@ -181,7 +181,7 @@ function GamePlay({
       </div>
 
       {/* Header with difficulty and home button */}
-      <div className="relative z-10 w-full max-w-md flex items-center justify-between mb-4 px-2">
+      <div className="relative z-10 w-full max-w-2xl flex items-center justify-between mb-3 px-2">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -192,19 +192,17 @@ function GamePlay({
           <Home className="w-5 h-5 text-muted-foreground" />
         </motion.button>
         
-        <div className="text-center">
-          <span className={`text-sm font-medium ${difficultyColor}`}>
-            {difficultyLabel} Mode
-          </span>
-        </div>
+        <h1 className="text-2xl font-bold text-primary tracking-wider">2048</h1>
         
-        <div className="w-9" /> {/* Spacer for centering */}
+        <span className={`text-sm font-medium ${difficultyColor}`}>
+          {difficultyLabel} Mode
+        </span>
       </div>
 
-      {/* Main game layout */}
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 relative z-10">
-        {/* Score panel (side on desktop, top on mobile) */}
-        <div className="order-2 md:order-1 w-full md:w-32">
+      {/* Main game layout - vertical stack */}
+      <div className="flex flex-col items-center gap-4 relative z-10 w-full max-w-2xl px-2">
+        {/* Score panel at top */}
+        <div className="w-full">
           <ScorePanel
             score={gameState.score}
             highScore={gameState.highScore}
@@ -213,7 +211,7 @@ function GamePlay({
         </div>
 
         {/* Game board */}
-        <div className="order-1 md:order-2 relative">
+        <div className="relative">
           <GameBoard
             grid={gameState.grid}
             currentBlock={gameState.currentBlock}
@@ -240,7 +238,7 @@ function GamePlay({
       />
 
       {/* Controls hint */}
-      <p className="mt-6 text-xs text-muted-foreground text-center hidden md:block">
+      <p className="mt-4 text-xs text-muted-foreground text-center hidden md:block">
         Use arrow keys to move, Space to drop, P to pause
       </p>
     </motion.div>

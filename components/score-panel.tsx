@@ -13,54 +13,51 @@ export function ScorePanel({ score, highScore, nextValue }: ScorePanelProps) {
   const nextColor = getBlockColor(nextValue);
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Title */}
-      <div className="text-center mb-2">
-        <h1 className="text-3xl font-bold text-primary tracking-wider">
-          2048
-        </h1>
-        <p className="text-xs text-muted-foreground tracking-widest uppercase">
-          Falling Blocks
-        </p>
-      </div>
+    <div className="w-full">
+      {/* Single line score panel */}
+      <div className="glass-dark rounded-lg p-3 flex items-center justify-between gap-4">
+        {/* Score */}
+        <div className="flex-1 min-w-0">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+            Score
+          </p>
+          <motion.p
+            key={score}
+            initial={{ scale: 1.2 }}
+            animate={{ scale: 1 }}
+            className="text-lg font-bold text-foreground tabular-nums truncate"
+          >
+            {score.toLocaleString()}
+          </motion.p>
+        </div>
 
-      {/* Score */}
-      <div className="glass-dark rounded-xl p-4">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-          Score
-        </p>
-        <motion.p
-          key={score}
-          initial={{ scale: 1.2 }}
-          animate={{ scale: 1 }}
-          className="text-2xl font-bold text-foreground tabular-nums"
-        >
-          {score.toLocaleString()}
-        </motion.p>
-      </div>
+        {/* Divider */}
+        <div className="h-12 w-px bg-white/10" />
 
-      {/* High Score */}
-      <div className="glass-dark rounded-xl p-4">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-          Best
-        </p>
-        <p className="text-xl font-semibold text-primary tabular-nums">
-          {highScore.toLocaleString()}
-        </p>
-      </div>
+        {/* High Score */}
+        <div className="flex-1 min-w-0 text-center">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+            Best
+          </p>
+          <p className="text-lg font-semibold text-primary tabular-nums truncate">
+            {highScore.toLocaleString()}
+          </p>
+        </div>
 
-      {/* Next Block */}
-      <div className="glass-dark rounded-xl p-4">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">
-          Next
-        </p>
-        <div className="flex justify-center">
+        {/* Divider */}
+        <div className="h-12 w-px bg-white/10" />
+
+        {/* Next Block */}
+        <div className="flex-1 flex flex-col items-center">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+            Next
+          </p>
           <div
             className={`
-              w-12 h-12 rounded-lg
+              w-10 h-10 rounded-lg
               bg-gradient-to-br ${nextColor.bg}
               flex items-center justify-center
-              font-bold ${nextColor.text}
+              font-bold text-sm ${nextColor.text}
               shadow-lg ${nextColor.glow}
               relative overflow-hidden
             `}
@@ -79,19 +76,6 @@ export function ScorePanel({ score, highScore, nextValue }: ScorePanelProps) {
             />
             <span className="relative z-10">{nextValue}</span>
           </div>
-        </div>
-      </div>
-
-      {/* Controls hint */}
-      <div className="glass-dark rounded-xl p-4 mt-auto hidden md:block">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
-          Controls
-        </p>
-        <div className="space-y-1 text-xs text-muted-foreground">
-          <p><span className="text-foreground">{"<-"} {"->"}</span> Move</p>
-          <p><span className="text-foreground">Down</span> Fast Fall</p>
-          <p><span className="text-foreground">Space</span> Drop</p>
-          <p><span className="text-foreground">P</span> Pause</p>
         </div>
       </div>
     </div>

@@ -36,7 +36,7 @@ export const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
   },
 };
 
-export const CELL_SIZE = 56;
+export const CELL_SIZE = 70;
 
 export interface Block {
   id: string;
