@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { RotateCcw, Play, Pause } from "lucide-react";
+import { RotateCcw, Play, Pause, Home } from "lucide-react";
 
 interface GameOverlayProps {
   gameOver: boolean;
@@ -9,6 +9,7 @@ interface GameOverlayProps {
   score: number;
   onRestart: () => void;
   onTogglePause: () => void;
+  onGoHome?: () => void;
 }
 
 export function GameOverlay({
@@ -17,6 +18,7 @@ export function GameOverlay({
   score,
   onRestart,
   onTogglePause,
+  onGoHome,
 }: GameOverlayProps) {
   return (
     <>
@@ -55,14 +57,26 @@ export function GameOverlay({
               <p className="text-4xl font-bold text-foreground mb-6">
                 {score.toLocaleString()}
               </p>
-              <button
-                type="button"
-                onClick={onRestart}
-                className="flex items-center gap-2 mx-auto px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-colors"
-              >
-                <RotateCcw className="w-5 h-5" />
-                Play Again
-              </button>
+              <div className="flex flex-col gap-3">
+                <button
+                  type="button"
+                  onClick={onRestart}
+                  className="flex items-center gap-2 mx-auto px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-colors w-full justify-center"
+                >
+                  <RotateCcw className="w-5 h-5" />
+                  Play Again
+                </button>
+                {onGoHome && (
+                  <button
+                    type="button"
+                    onClick={onGoHome}
+                    className="flex items-center gap-2 mx-auto px-6 py-3 glass hover:bg-white/10 rounded-xl font-medium transition-colors w-full justify-center text-muted-foreground"
+                  >
+                    <Home className="w-5 h-5" />
+                    Change Difficulty
+                  </button>
+                )}
+              </div>
             </motion.div>
           </motion.div>
         )}
@@ -82,14 +96,26 @@ export function GameOverlay({
               className="text-center p-8"
             >
               <h2 className="text-3xl font-bold text-foreground mb-4">Paused</h2>
-              <button
-                type="button"
-                onClick={onTogglePause}
-                className="flex items-center gap-2 mx-auto px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-colors"
-              >
-                <Play className="w-5 h-5" />
-                Resume
-              </button>
+              <div className="flex flex-col gap-3">
+                <button
+                  type="button"
+                  onClick={onTogglePause}
+                  className="flex items-center gap-2 mx-auto px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-colors w-full justify-center"
+                >
+                  <Play className="w-5 h-5" />
+                  Resume
+                </button>
+                {onGoHome && (
+                  <button
+                    type="button"
+                    onClick={onGoHome}
+                    className="flex items-center gap-2 mx-auto px-6 py-3 glass hover:bg-white/10 rounded-xl font-medium transition-colors w-full justify-center text-muted-foreground"
+                  >
+                    <Home className="w-5 h-5" />
+                    Main Menu
+                  </button>
+                )}
+              </div>
             </motion.div>
           </motion.div>
         )}

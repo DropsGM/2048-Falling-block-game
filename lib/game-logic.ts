@@ -1,6 +1,45 @@
-export const GRID_WIDTH = 5;
-export const GRID_HEIGHT = 8;
-export const CELL_SIZE = 60;
+export type Difficulty = "easy" | "medium" | "hard";
+
+export interface DifficultyConfig {
+  gridWidth: number;
+  gridHeight: number;
+  fallSpeed: number;
+  fastFallSpeed: number;
+  blockValues: number[];
+  blockWeights: number[];
+}
+
+export const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
+  easy: {
+    gridWidth: 5,
+    gridHeight: 8,
+    fallSpeed: 1000,
+    fastFallSpeed: 80,
+    blockValues: [2, 4],
+    blockWeights: [0.8, 1.0],
+  },
+  medium: {
+    gridWidth: 5,
+    gridHeight: 10,
+    fallSpeed: 700,
+    fastFallSpeed: 50,
+    blockValues: [2, 4, 8],
+    blockWeights: [0.6, 0.9, 1.0],
+  },
+  hard: {
+    gridWidth: 6,
+    gridHeight: 12,
+    fallSpeed: 450,
+    fastFallSpeed: 30,
+    blockValues: [2, 4, 8, 16],
+    blockWeights: [0.45, 0.75, 0.92, 1.0],
+  },
+};
+
+export const CELL_SIZE = 56;
+
+const GRID_WIDTH = 6; // Declared GRID_WIDTH
+const GRID_HEIGHT = 12; // Declared GRID_HEIGHT
 
 export interface Block {
   id: string;
@@ -19,6 +58,7 @@ export interface GameState {
   highScore: number;
   gameOver: boolean;
   isPaused: boolean;
+  difficulty: Difficulty;
 }
 
 export const BLOCK_COLORS: Record<number, { bg: string; text: string; glow: string }> = {
@@ -40,33 +80,40 @@ export function getBlockColor(value: number) {
   return BLOCK_COLORS[value] || { bg: 'from-gray-400 to-gray-600', text: 'text-white', glow: 'shadow-gray-500/50' };
 }
 
-export function createEmptyGrid(): (Block | null)[][] {
-  return Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(null));
+export function createEmptyGrid(difficulty: Difficulty): (Block | null)[][] {
+  const config = DIFFICULTY_CONFIGS[difficulty];
+  return Array(config.gridHeight).fill(null).map(() => Array(config.gridWidth).fill(null));
 }
 
 export function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
 }
 
-export function getRandomValue(): number {
+export function getRandomValue(difficulty: Difficulty): number {
+  const config = DIFFICULTY_CONFIGS[difficulty];
   const random = Math.random();
-  if (random < 0.75) return 2;
-  if (random < 0.95) return 4;
-  return 8;
+  
+  for (let i = 0; i < config.blockWeights.length; i++) {
+    if (random < config.blockWeights[i]) {
+      return config.blockValues[i];
+    }
+  }
+  return config.blockValues[config.blockValues.length - 1];
 }
 
-export function createNewBlock(x: number): Block {
+export function createNewBlock(x: number, difficulty: Difficulty): Block {
   return {
     id: generateId(),
-    value: getRandomValue(),
+    value: getRandomValue(difficulty),
     x,
     y: 0,
     isNew: true,
   };
 }
 
-export function canMoveDown(grid: (Block | null)[][], block: Block): boolean {
-  if (block.y >= GRID_HEIGHT - 1) return false;
+export function canMoveDown(grid: (Block | null)[][], block: Block, difficulty: Difficulty): boolean {
+  const config = DIFFICULTY_CONFIGS[difficulty];
+  if (block.y >= config.gridHeight - 1) return false;
   return grid[block.y + 1][block.x] === null;
 }
 
@@ -75,8 +122,9 @@ export function canMoveLeft(grid: (Block | null)[][], block: Block): boolean {
   return grid[block.y][block.x - 1] === null;
 }
 
-export function canMoveRight(grid: (Block | null)[][], block: Block): boolean {
-  if (block.x >= GRID_WIDTH - 1) return false;
+export function canMoveRight(grid: (Block | null)[][], block: Block, difficulty: Difficulty): boolean {
+  const config = DIFFICULTY_CONFIGS[difficulty];
+  if (block.x >= config.gridWidth - 1) return false;
   return grid[block.y][block.x + 1] === null;
 }
 
@@ -84,8 +132,11 @@ export function findMergeTarget(
   grid: (Block | null)[][],
   block: Block
 ): Block | null {
+  const gridHeight = grid.length;
+  const gridWidth = grid[0]?.length || 0;
+  
   // Check below
-  if (block.y < GRID_HEIGHT - 1) {
+  if (block.y < gridHeight - 1) {
     const below = grid[block.y + 1][block.x];
     if (below && below.value === block.value) {
       return below;
@@ -99,7 +150,7 @@ export function findMergeTarget(
     }
   }
   // Check right
-  if (block.x < GRID_WIDTH - 1) {
+  if (block.x < gridWidth - 1) {
     const right = grid[block.y][block.x + 1];
     if (right && right.value === block.value) {
       return right;
@@ -116,13 +167,15 @@ export function checkGameOver(grid: (Block | null)[][]): boolean {
 export function applyGravity(grid: (Block | null)[][]): { newGrid: (Block | null)[][]; moved: boolean } {
   const newGrid = grid.map(row => [...row]);
   let moved = false;
+  const gridHeight = grid.length;
+  const gridWidth = grid[0]?.length || 0;
 
-  for (let col = 0; col < GRID_WIDTH; col++) {
-    for (let row = GRID_HEIGHT - 2; row >= 0; row--) {
+  for (let col = 0; col < gridWidth; col++) {
+    for (let row = gridHeight - 2; row >= 0; row--) {
       const block = newGrid[row][col];
       if (block) {
         let targetRow = row;
-        while (targetRow < GRID_HEIGHT - 1 && newGrid[targetRow + 1][col] === null) {
+        while (targetRow < gridHeight - 1 && newGrid[targetRow + 1][col] === null) {
           targetRow++;
         }
         if (targetRow !== row) {
@@ -148,15 +201,17 @@ export function findAndMerge(grid: (Block | null)[][]): {
   let scoreGained = 0;
   const mergedPositions: { x: number; y: number }[] = [];
   const processed = new Set<string>();
+  const gridHeight = grid.length;
+  const gridWidth = grid[0]?.length || 0;
 
   // Check all blocks for potential merges (bottom to top, left to right)
-  for (let row = GRID_HEIGHT - 1; row >= 0; row--) {
-    for (let col = 0; col < GRID_WIDTH; col++) {
+  for (let row = gridHeight - 1; row >= 0; row--) {
+    for (let col = 0; col < gridWidth; col++) {
       const block = newGrid[row][col];
       if (!block || processed.has(`${row}-${col}`)) continue;
 
       // Check below
-      if (row < GRID_HEIGHT - 1) {
+      if (row < gridHeight - 1) {
         const below = newGrid[row + 1][col];
         if (below && below.value === block.value && !processed.has(`${row + 1}-${col}`)) {
           // Merge into below
@@ -176,7 +231,7 @@ export function findAndMerge(grid: (Block | null)[][]): {
       }
 
       // Check right (horizontal merges)
-      if (col < GRID_WIDTH - 1) {
+      if (col < gridWidth - 1) {
         const right = newGrid[row][col + 1];
         if (right && right.value === block.value && !processed.has(`${row}-${col + 1}`)) {
           // Merge into current
@@ -199,13 +254,21 @@ export function findAndMerge(grid: (Block | null)[][]): {
   return { newGrid, merged, scoreGained, mergedPositions };
 }
 
-export function getHighScore(): number {
+export function getHighScore(difficulty: Difficulty): number {
   if (typeof window === 'undefined') return 0;
-  const stored = localStorage.getItem('falling2048_highScore');
+  const stored = localStorage.getItem(`falling2048_highScore_${difficulty}`);
   return stored ? parseInt(stored, 10) : 0;
 }
 
-export function setHighScore(score: number): void {
+export function getAllHighScores(): Record<Difficulty, number> {
+  return {
+    easy: getHighScore('easy'),
+    medium: getHighScore('medium'),
+    hard: getHighScore('hard'),
+  };
+}
+
+export function setHighScore(score: number, difficulty: Difficulty): void {
   if (typeof window === 'undefined') return;
-  localStorage.setItem('falling2048_highScore', score.toString());
+  localStorage.setItem(`falling2048_highScore_${difficulty}`, score.toString());
 }

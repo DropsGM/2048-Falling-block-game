@@ -1,22 +1,24 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { type Block, GRID_WIDTH, GRID_HEIGHT, CELL_SIZE } from "@/lib/game-logic";
+import { type Block, type Difficulty, DIFFICULTY_CONFIGS, CELL_SIZE } from "@/lib/game-logic";
 import { GameBlock } from "./game-block";
 
 interface GameBoardProps {
   grid: (Block | null)[][];
   currentBlock: Block | null;
+  difficulty: Difficulty;
 }
 
-export function GameBoard({ grid, currentBlock }: GameBoardProps) {
-  const boardWidth = GRID_WIDTH * CELL_SIZE;
-  const boardHeight = GRID_HEIGHT * CELL_SIZE;
+export function GameBoard({ grid, currentBlock, difficulty }: GameBoardProps) {
+  const config = DIFFICULTY_CONFIGS[difficulty];
+  const boardWidth = config.gridWidth * CELL_SIZE;
+  const boardHeight = config.gridHeight * CELL_SIZE;
 
   // Collect all blocks from grid
   const gridBlocks: Block[] = [];
-  for (let y = 0; y < GRID_HEIGHT; y++) {
-    for (let x = 0; x < GRID_WIDTH; x++) {
+  for (let y = 0; y < config.gridHeight; y++) {
+    for (let x = 0; x < config.gridWidth; x++) {
       const block = grid[y][x];
       if (block) {
         gridBlocks.push(block);
@@ -50,7 +52,7 @@ export function GameBoard({ grid, currentBlock }: GameBoardProps) {
             style={{ width: boardWidth, height: boardHeight }}
           >
             {/* Vertical lines */}
-            {Array.from({ length: GRID_WIDTH + 1 }).map((_, i) => (
+            {Array.from({ length: config.gridWidth + 1 }).map((_, i) => (
               <line
                 key={`v-${i}`}
                 x1={i * CELL_SIZE}
@@ -62,7 +64,7 @@ export function GameBoard({ grid, currentBlock }: GameBoardProps) {
               />
             ))}
             {/* Horizontal lines */}
-            {Array.from({ length: GRID_HEIGHT + 1 }).map((_, i) => (
+            {Array.from({ length: config.gridHeight + 1 }).map((_, i) => (
               <line
                 key={`h-${i}`}
                 x1={0}
@@ -77,7 +79,7 @@ export function GameBoard({ grid, currentBlock }: GameBoardProps) {
 
           {/* Danger zone indicator at top */}
           <div
-            className="absolute top-0 left-0 right-0 h-[60px] pointer-events-none"
+            className="absolute top-0 left-0 right-0 h-[56px] pointer-events-none"
             style={{
               background: "linear-gradient(180deg, rgba(239, 68, 68, 0.15) 0%, transparent 100%)",
             }}

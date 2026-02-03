@@ -4,10 +4,9 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import {
   type Block,
   type GameState,
-  GRID_WIDTH,
-  GRID_HEIGHT,
+  type Difficulty,
+  DIFFICULTY_CONFIGS,
   createEmptyGrid,
-  createNewBlock,
   canMoveDown,
   canMoveLeft,
   canMoveRight,
@@ -20,40 +19,41 @@ import {
   generateId,
 } from "@/lib/game-logic";
 
-const FALL_SPEED = 800; // ms between automatic falls
-const FAST_FALL_SPEED = 50; // ms when holding down
-
-export function useGame() {
+export function useGame(difficulty: Difficulty) {
+  const config = DIFFICULTY_CONFIGS[difficulty];
+  
   const [gameState, setGameState] = useState<GameState>(() => ({
-    grid: createEmptyGrid(),
+    grid: createEmptyGrid(difficulty),
     currentBlock: null,
-    nextValue: getRandomValue(),
+    nextValue: getRandomValue(difficulty),
     score: 0,
     highScore: 0,
     gameOver: false,
     isPaused: false,
+    difficulty,
   }));
 
   const [isFastFalling, setIsFastFalling] = useState(false);
   const fallIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const processingRef = useRef(false);
+  const gameStartedRef = useRef(false);
 
   // Load high score on mount
   useEffect(() => {
-    setGameState((prev) => ({ ...prev, highScore: getHighScore() }));
-  }, []);
+    setGameState((prev) => ({ ...prev, highScore: getHighScore(difficulty) }));
+  }, [difficulty]);
 
   // Spawn a new block
   const spawnBlock = useCallback(() => {
     setGameState((prev) => {
       if (prev.gameOver || prev.isPaused) return prev;
 
-      const spawnX = Math.floor(GRID_WIDTH / 2);
+      const spawnX = Math.floor(config.gridWidth / 2);
 
       // Check if spawn position is blocked
       if (prev.grid[0][spawnX] !== null) {
         const newHighScore = Math.max(prev.score, prev.highScore);
-        setHighScore(newHighScore);
+        setHighScore(newHighScore, difficulty);
         return { ...prev, gameOver: true, highScore: newHighScore };
       }
 
@@ -68,10 +68,10 @@ export function useGame() {
       return {
         ...prev,
         currentBlock: newBlock,
-        nextValue: getRandomValue(),
+        nextValue: getRandomValue(difficulty),
       };
     });
-  }, []);
+  }, [config.gridWidth, difficulty]);
 
   // Process merges and gravity
   const processMergesAndGravity = useCallback(async () => {
@@ -98,7 +98,7 @@ export function useGame() {
           const newScore = prev.score + scoreGained;
           const newHighScore = Math.max(newScore, prev.highScore);
           if (newScore > prev.highScore) {
-            setHighScore(newHighScore);
+            setHighScore(newHighScore, difficulty);
           }
           setTimeout(process, 150);
           return {
@@ -112,7 +112,7 @@ export function useGame() {
         // Check game over
         if (checkGameOver(mergeGrid)) {
           const newHighScore = Math.max(prev.score, prev.highScore);
-          setHighScore(newHighScore);
+          setHighScore(newHighScore, difficulty);
           processingRef.current = false;
           return { ...prev, grid: mergeGrid, gameOver: true, highScore: newHighScore };
         }
@@ -123,35 +123,14 @@ export function useGame() {
     };
 
     process();
-  }, []);
-
-  // Place current block on grid
-  const placeBlock = useCallback(() => {
-    setGameState((prev) => {
-      if (!prev.currentBlock) return prev;
-
-      const newGrid = prev.grid.map((row) => [...row]);
-      const block = prev.currentBlock;
-
-      newGrid[block.y][block.x] = { ...block, isNew: false };
-
-      return { ...prev, grid: newGrid, currentBlock: null };
-    });
-
-    // Process merges after placing
-    setTimeout(() => {
-      processMergesAndGravity().then(() => {
-        setTimeout(spawnBlock, 200);
-      });
-    }, 50);
-  }, [processMergesAndGravity, spawnBlock]);
+  }, [difficulty]);
 
   // Move block down
   const moveDown = useCallback(() => {
     setGameState((prev) => {
       if (!prev.currentBlock || prev.gameOver || prev.isPaused) return prev;
 
-      if (canMoveDown(prev.grid, prev.currentBlock)) {
+      if (canMoveDown(prev.grid, prev.currentBlock, difficulty)) {
         return {
           ...prev,
           currentBlock: {
@@ -164,14 +143,14 @@ export function useGame() {
 
       return prev;
     });
-  }, []);
+  }, [difficulty]);
 
   // Check if block should be placed
   const checkAndPlace = useCallback(() => {
     setGameState((prev) => {
       if (!prev.currentBlock || prev.gameOver || prev.isPaused) return prev;
 
-      if (!canMoveDown(prev.grid, prev.currentBlock)) {
+      if (!canMoveDown(prev.grid, prev.currentBlock, difficulty)) {
         // Block can't move down, place it
         const newGrid = prev.grid.map((row) => [...row]);
         const block = prev.currentBlock;
@@ -188,7 +167,7 @@ export function useGame() {
 
       return prev;
     });
-  }, [processMergesAndGravity, spawnBlock]);
+  }, [processMergesAndGravity, spawnBlock, difficulty]);
 
   // Move block left
   const moveLeft = useCallback(() => {
@@ -210,7 +189,7 @@ export function useGame() {
     setGameState((prev) => {
       if (!prev.currentBlock || prev.gameOver || prev.isPaused) return prev;
 
-      if (canMoveRight(prev.grid, prev.currentBlock)) {
+      if (canMoveRight(prev.grid, prev.currentBlock, difficulty)) {
         return {
           ...prev,
           currentBlock: { ...prev.currentBlock, x: prev.currentBlock.x + 1 },
@@ -218,7 +197,7 @@ export function useGame() {
       }
       return prev;
     });
-  }, []);
+  }, [difficulty]);
 
   // Hard drop
   const hardDrop = useCallback(() => {
@@ -227,7 +206,7 @@ export function useGame() {
 
       let newY = prev.currentBlock.y;
       while (
-        newY < GRID_HEIGHT - 1 &&
+        newY < config.gridHeight - 1 &&
         prev.grid[newY + 1][prev.currentBlock.x] === null
       ) {
         newY++;
@@ -245,7 +224,7 @@ export function useGame() {
 
       return { ...prev, grid: newGrid, currentBlock: null };
     });
-  }, [processMergesAndGravity, spawnBlock]);
+  }, [processMergesAndGravity, spawnBlock, config.gridHeight]);
 
   // Start fast fall
   const startFastFall = useCallback(() => {
@@ -260,17 +239,22 @@ export function useGame() {
   // Reset game
   const resetGame = useCallback(() => {
     processingRef.current = false;
+    gameStartedRef.current = false;
     setGameState((prev) => ({
-      grid: createEmptyGrid(),
+      grid: createEmptyGrid(difficulty),
       currentBlock: null,
-      nextValue: getRandomValue(),
+      nextValue: getRandomValue(difficulty),
       score: 0,
       highScore: prev.highScore,
       gameOver: false,
       isPaused: false,
+      difficulty,
     }));
-    setTimeout(spawnBlock, 300);
-  }, [spawnBlock]);
+    setTimeout(() => {
+      gameStartedRef.current = true;
+      spawnBlock();
+    }, 300);
+  }, [spawnBlock, difficulty]);
 
   // Toggle pause
   const togglePause = useCallback(() => {
@@ -287,7 +271,7 @@ export function useGame() {
       return;
     }
 
-    const speed = isFastFalling ? FAST_FALL_SPEED : FALL_SPEED;
+    const speed = isFastFalling ? config.fastFallSpeed : config.fallSpeed;
 
     fallIntervalRef.current = setInterval(() => {
       moveDown();
@@ -307,12 +291,17 @@ export function useGame() {
     isFastFalling,
     moveDown,
     checkAndPlace,
+    config.fallSpeed,
+    config.fastFallSpeed,
   ]);
 
   // Start game on mount
   useEffect(() => {
-    const timer = setTimeout(spawnBlock, 500);
-    return () => clearTimeout(timer);
+    if (!gameStartedRef.current) {
+      gameStartedRef.current = true;
+      const timer = setTimeout(spawnBlock, 500);
+      return () => clearTimeout(timer);
+    }
   }, [spawnBlock]);
 
   return {
