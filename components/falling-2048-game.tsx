@@ -8,6 +8,7 @@ import { ScorePanel } from "./score-panel";
 import { TouchControls } from "./touch-controls";
 import { GameOverlay } from "./game-overlay";
 import { HomeScreen, type Difficulty } from "./home-screen";
+import { ThemeToggle } from "./theme-toggle";
 import { getAllHighScores } from "@/lib/game-logic";
 import { Home } from "lucide-react";
 
@@ -180,7 +181,7 @@ function GamePlay({
         />
       </div>
 
-      {/* Header with difficulty and home button */}
+      {/* Header with difficulty, theme toggle and home button */}
       <div className="relative z-10 w-full max-w-2xl flex items-center justify-between mb-3 px-2">
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -194,9 +195,12 @@ function GamePlay({
         
         <h1 className="text-2xl font-bold text-primary tracking-wider">2048</h1>
         
-        <span className={`text-sm font-medium ${difficultyColor}`}>
-          {difficultyLabel} Mode
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={`text-sm font-medium ${difficultyColor}`}>
+            {difficultyLabel} Mode
+          </span>
+          <ThemeToggle />
+        </div>
       </div>
 
       {/* Main game layout - vertical stack */}

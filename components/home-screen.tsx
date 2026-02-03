@@ -4,6 +4,7 @@ import React from "react"
 
 import { motion } from "framer-motion";
 import { Zap, Flame, Skull, Trophy, Info } from "lucide-react";
+import { ThemeToggle } from "./theme-toggle";
 
 export type Difficulty = "easy" | "medium" | "hard";
 
@@ -71,6 +72,11 @@ interface HomeScreenProps {
 export function HomeScreen({ highScores, onSelectDifficulty }: HomeScreenProps) {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 relative">
+      {/* Theme toggle in top right */}
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggle />
+      </div>
+
       {/* Background decorations */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div
