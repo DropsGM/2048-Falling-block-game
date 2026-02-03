@@ -1,15 +1,23 @@
 "use client";
 
-import React from "react"
-
-import { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef, useCallback, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useGame } from "@/hooks/use-game";
 import { GameBoard } from "./game-board";
 import { ScorePanel } from "./score-panel";
 import { TouchControls } from "./touch-controls";
 import { GameOverlay } from "./game-overlay";
+import { HomeScreen, type Difficulty } from "./home-screen";
+import { getAllHighScores } from "@/lib/game-logic";
+import { Home } from "lucide-react";
 
-export function Falling2048Game() {
+function GamePlay({ 
+  difficulty, 
+  onGoHome 
+}: { 
+  difficulty: Difficulty; 
+  onGoHome: () => void;
+}) {
   const {
     gameState,
     moveLeft,
@@ -20,7 +28,7 @@ export function Falling2048Game() {
     stopFastFall,
     resetGame,
     togglePause,
-  } = useGame();
+  } = useGame(difficulty);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -134,9 +142,24 @@ export function Falling2048Game() {
     [moveLeft, moveRight, hardDrop]
   );
 
+  const difficultyLabel = {
+    easy: "Easy",
+    medium: "Medium",
+    hard: "Hard",
+  }[difficulty];
+
+  const difficultyColor = {
+    easy: "text-emerald-400",
+    medium: "text-amber-400",
+    hard: "text-rose-400",
+  }[difficulty];
+
   return (
-    <div
+    <motion.div
       ref={containerRef}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
       className="flex flex-col items-center justify-center min-h-screen p-4 select-none"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
@@ -157,6 +180,27 @@ export function Falling2048Game() {
         />
       </div>
 
+      {/* Header with difficulty and home button */}
+      <div className="relative z-10 w-full max-w-md flex items-center justify-between mb-4 px-2">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={onGoHome}
+          className="p-2 rounded-lg glass hover:bg-white/10 transition-colors"
+          aria-label="Go to home"
+        >
+          <Home className="w-5 h-5 text-muted-foreground" />
+        </motion.button>
+        
+        <div className="text-center">
+          <span className={`text-sm font-medium ${difficultyColor}`}>
+            {difficultyLabel} Mode
+          </span>
+        </div>
+        
+        <div className="w-9" /> {/* Spacer for centering */}
+      </div>
+
       {/* Main game layout */}
       <div className="flex flex-col md:flex-row items-center md:items-start gap-6 relative z-10">
         {/* Score panel (side on desktop, top on mobile) */}
@@ -173,6 +217,7 @@ export function Falling2048Game() {
           <GameBoard
             grid={gameState.grid}
             currentBlock={gameState.currentBlock}
+            difficulty={difficulty}
           />
 
           <GameOverlay
@@ -181,6 +226,7 @@ export function Falling2048Game() {
             score={gameState.score}
             onRestart={resetGame}
             onTogglePause={togglePause}
+            onGoHome={onGoHome}
           />
         </div>
       </div>
@@ -193,10 +239,63 @@ export function Falling2048Game() {
         onDrop={hardDrop}
       />
 
-      {/* Install hint for PWA */}
-      <p className="mt-6 text-xs text-muted-foreground text-center">
-        Add to home screen for offline play
+      {/* Controls hint */}
+      <p className="mt-6 text-xs text-muted-foreground text-center hidden md:block">
+        Use arrow keys to move, Space to drop, P to pause
       </p>
-    </div>
+    </motion.div>
+  );
+}
+
+export function Falling2048Game() {
+  const [screen, setScreen] = useState<"home" | "game">("home");
+  const [difficulty, setDifficulty] = useState<Difficulty>("medium");
+  const [highScores, setHighScores] = useState<Record<Difficulty, number>>({
+    easy: 0,
+    medium: 0,
+    hard: 0,
+  });
+
+  // Load high scores
+  useEffect(() => {
+    setHighScores(getAllHighScores());
+  }, [screen]);
+
+  const handleSelectDifficulty = (selectedDifficulty: Difficulty) => {
+    setDifficulty(selectedDifficulty);
+    setScreen("game");
+  };
+
+  const handleGoHome = () => {
+    setScreen("home");
+  };
+
+  return (
+    <AnimatePresence mode="wait">
+      {screen === "home" ? (
+        <motion.div
+          key="home"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <HomeScreen
+            highScores={highScores}
+            onSelectDifficulty={handleSelectDifficulty}
+          />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="game"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <GamePlay difficulty={difficulty} onGoHome={handleGoHome} />
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
