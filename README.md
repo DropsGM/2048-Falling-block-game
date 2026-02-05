@@ -22,6 +22,9 @@ Different difficulty modes change the speed and challenge level, making the game
 - Mobile-friendly UI
 - Smooth animations
 
+- Playable offline after the first visit
+- Add to home screen for app-like offline experience
+
 ## Controls
 - Left / Right: Move block
 - Down: Fast fall
