@@ -1,30 +1,38 @@
-# Falling block game
+# 2048 Falling Block Game 🎮
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+2048 Falling Block Game is a unique combo of **Tetrisblock-style falling gameplay** and **classic 2048 block merge mechanics**.  
+Players must control falling number blocks, position them smartly, and merge identical values before the board fills up.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/kingfiser8-4856s-projects/v0-2048-falling-block-game)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/yh50QmX22av)
+**App Live:** [2048 Falling Block Game](https://v0-2048-falling-block-game.vercel.app)
 
-## Overview
+- if you want to install this app on mobile go to the web open in any Browser and click add to home screen.
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+## About the Game
+This game blends the fast-paced nature of falling block games (like Tetris) with the strategic number-merging system of 2048.
 
-## Deployment
+Different difficulty modes change the speed and challenge level, making the game suitable for both casual and competitive players.
 
-Your project is live at:
+## Features
+- Tetris + 2048 block merge combo gameplay
+- Falling blocks with directional control
+- Easy, Medium, and Hard difficulty modes
+- Score and best score tracking
+- Next block preview
+- Dark mode support
+- Mobile-friendly UI
+- Smooth animations
 
-**[https://vercel.com/kingfiser8-4856s-projects/v0-2048-falling-block-game](https://vercel.com/kingfiser8-4856s-projects/v0-2048-falling-block-game)**
+## Controls
+- Left / Right: Move block
+- Down: Fast fall
+- Space: Instant drop
+- Pause button during gameplay
+- if you playing on mobile you can use touch screen for control.
 
-## Build your app
+## Tech Stack
+- TypeScript
+- HTML
+- CSS
 
-Continue building your app on:
-
-**[https://v0.app/chat/yh50QmX22av](https://v0.app/chat/yh50QmX22av)**
-
-## How It Works
-
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+## Author
+Build by [Drops](https://x.com/dropsgm)
